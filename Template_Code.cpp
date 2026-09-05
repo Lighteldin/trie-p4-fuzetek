@@ -83,8 +83,53 @@ private:
         string word,
         int index
     ) {
-        // TODO: Implement this function
-        return false;
+        if (node == nullptr) {
+            return false;
+        }
+
+        // Base case: reached the end of the word
+        if (index == (int)word.length()) {
+            if (!node->isEndOfWord) {
+                return false;
+            }
+
+            node->isEndOfWord = false;
+
+            // Return true only if node has no children
+            for (int i = 0; i < 26; i++) {
+                if (node->children[i] != nullptr) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Recursive case
+        int idx = word[index] - 'a';
+        if (idx < 0 || idx >= 26 || node->children[idx] == nullptr) {
+            return false;
+        }
+
+        bool shouldDeleteChild = removeHelper(node->children[idx], word, index + 1);
+
+        if (shouldDeleteChild) {
+            delete node->children[idx];
+            node->children[idx] = nullptr;
+        }
+
+        // Return true only if node has no children and is not the end of another word
+        if (node->isEndOfWord) {
+            return false;
+        }
+
+        for (int i = 0; i < 26; i++) {
+            if (node->children[i] != nullptr) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 public:
@@ -152,7 +197,24 @@ public:
     // Remove: "apple"
     // "app" should still exist
     void remove(string word) {
-        // TODO: Implement this function
+        if (word.empty()) {
+            return;
+        }
+
+        // Check if word actually exists before removing
+        TrieNode* current = root;
+        for (char ch : word) {
+            int idx = ch - 'a';
+            if (idx < 0 || idx >= 26 || current->children[idx] == nullptr) {
+                return;
+            }
+            current = current->children[idx];
+        }
+
+        if (current != nullptr && current->isEndOfWord) {
+            removeHelper(root, word, 0);
+            wordCount--;
+        }
     }
     
     // Count the total number of words in the Trie
