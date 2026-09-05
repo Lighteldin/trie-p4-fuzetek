@@ -41,7 +41,7 @@ private:
     ) {
         // TODO: Implement this function
     }
-    
+  
     // Helper function to delete all nodes recursively
     // Input: current node
     // Output: none
@@ -62,9 +62,17 @@ private:
     // Input: current node
     // Output: number of complete words below this node
     // Purpose: Count all words starting from this node
-    int countWordsFromNode(TrieNode* node) {
-        // TODO: Implement this function
-        return 0;
+       int countWordsFromNode(TrieNode* node) {
+        int count = 0;
+        if (node->isEndOfWord) {
+            count = 1;
+        }
+        for (int i = 0; i < 26; i++) {
+            if (node->children[i] != nullptr) {
+                count += countWordsFromNode(node->children[i]);
+            }
+        }
+        return count;
     }
     
     // Helper function to remove a word recursively
@@ -221,18 +229,24 @@ public:
     // Input: none
     // Output: number of words
     // Purpose: Return how many unique complete words exist in the Trie
-    int countWords() {
-        // TODO: Implement this function
-        return 0;
+       int countWords() {
+        return wordCount;
     }
     
     // Count how many words start with a given prefix
     // Input: prefix
     // Output: number of words
     // Purpose: Count all complete words that begin with the prefix
-    int countWordsWithPrefix(string prefix) {
-        // TODO: Implement this function
-        return 0;
+        int countWordsWithPrefix(string prefix) {
+        TrieNode* current = root;
+        for (char ch : prefix) {
+            int idx = ch - 'a';
+            if (idx < 0 || idx >= 26 || current->children[idx] == nullptr) {
+                return 0;
+            }
+            current = current->children[idx];
+        }
+        return countWordsFromNode(current);
     }
     
     // Get all words stored in the Trie
@@ -293,11 +307,24 @@ public:
     // could return:
     // apple
     // application
-    vector<string> autocomplete(string prefix, int limit) {
+        vector<string> autocomplete(string prefix, int limit) {
         vector<string> suggestions;
-        
-        // TODO: Implement this function
-        
+
+        TrieNode* current = root;
+        for (char ch : prefix) {
+            int idx = ch - 'a';
+            if (idx < 0 || idx >= 26 || current->children[idx] == nullptr) {
+                return suggestions;
+            }
+            current = current->children[idx];
+        }
+
+        findAllWords(current, prefix, suggestions);
+
+        if ((int)suggestions.size() > limit) {
+            suggestions.resize(limit);
+        }
+
         return suggestions;
     }
 };
