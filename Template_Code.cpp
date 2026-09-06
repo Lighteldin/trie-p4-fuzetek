@@ -39,7 +39,23 @@ private:
         string currentWord,
         vector<string>& results
     ) {
-        // TODO: Implement this function
+        if (node == nullptr) {
+            return;
+        }
+
+        if (node->isEndOfWord) {
+            results.push_back(currentWord);
+        }
+
+        for (int i = 0; i < 26; i++) {
+            if (node->children[i] != nullptr) {
+                findAllWords(
+                    node->children[i],
+                    currentWord + char('a' + i),
+                    results
+                );
+            }
+        }
     }
   
     // Helper function to delete all nodes recursively
@@ -255,8 +271,8 @@ public:
     // Purpose: Return every complete word stored in the Trie
     vector<string> getAllWords() {
         vector<string> words;
-        
-        // TODO: Implement this function
+
+        findAllWords(root, "", words);
         
         return words;
     }
@@ -273,8 +289,21 @@ public:
     // Input: "appreciate"
     // Output: "app"
     string longestPrefixOf(string word) {
-        // TODO: Implement this function
-        return "";
+        string prefix;
+        TrieNode* current = root;
+
+        for (char ch : word) {
+            int idx = ch - 'a';
+
+            if (idx < 0 || idx >= 26 || current->children[idx] == nullptr) {
+                break;
+            }
+
+            current = current->children[idx];
+            prefix.push_back(ch);
+        }
+
+        return prefix;
     }
     
     // Check whether the Trie contains any words
@@ -282,8 +311,7 @@ public:
     // Output: true if empty, false otherwise
     // Purpose: Check if the Trie has no stored words
     bool isEmpty() {
-        // TODO: Implement this function
-        return true; // placeholder
+        return ( wordCount == 0 ); // placeholder
     }
     
     // Remove all words from the Trie
@@ -291,7 +319,9 @@ public:
     // Output: none
     // Purpose: Completely clear the Trie
     void clear() {
-        // TODO: Implement this function
+        deleteNodes(root);
+        root = new TrieNode();
+        wordCount = 0;
     }
     
     // Get autocomplete suggestions with a maximum limit
