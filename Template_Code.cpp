@@ -177,7 +177,21 @@ public:
     // Output: none
     // Purpose: Add a word to the Trie by creating nodes for each character
     void insert(string word) {
-        // TODO: Implement this function
+        TrieNode* current = root;
+        for (char ch : word) {
+            int index = ch - 'a';
+            if (index < 0 || index >= 26) {
+                return;
+            }
+            if (current->children[index] == nullptr) {
+                current->children[index] = new TrieNode();
+            }
+            current = current->children[index];
+        }   
+        if (!current->isEndOfWord) {
+            wordCount++;
+        }
+        current->isEndOfWord = true;
     }
     
     // Search for a word in the Trie
@@ -185,8 +199,15 @@ public:
     // Output: boolean indicating if the word exists
     // Purpose: Check if the complete word exists in the Trie
     bool search(string word) {
-        // TODO: Implement this function
-        return false; // placeholder
+        TrieNode* current = root;
+        for (char ch : word) {
+            int index = ch - 'a';
+            if (index < 0 || index >= 26 || current->children[index] == nullptr) {
+                return false;
+            }
+            current = current->children[index];
+        }
+        return current->isEndOfWord;
     }
     
     // Check if any word starts with the given prefix
@@ -195,8 +216,15 @@ public:
     // Purpose: Verify if the prefix exists in the Trie
     //          (doesn't need to be a complete word)
     bool startsWith(string prefix) {
-        // TODO: Implement this function
-        return false; // placeholder
+        TrieNode* current = root;
+        for (char ch : prefix) {
+            int index = ch - 'a';
+            if (index < 0 || index >= 26 || current->children[index] == nullptr) {
+                return false;
+            }
+            current = current->children[index];
+        }
+        return true;
     }
     
     // Get all words that start with the given prefix
@@ -205,9 +233,15 @@ public:
     // Purpose: Find all complete words that begin with the given prefix
     vector<string> autocomplete(string prefix) {
         vector<string> suggestions;
-        
-        // TODO: Implement this function
-        
+        TrieNode* current = root;
+        for (char ch : prefix) {
+            int index = ch - 'a';
+            if (index < 0 || index >= 26 || current->children[index] == nullptr) {
+                return suggestions; // empty vector — prefix path doesn't exist
+            }
+            current = current->children[index];
+        }
+        findAllWords(current, prefix, suggestions);
         return suggestions;
     }
     
